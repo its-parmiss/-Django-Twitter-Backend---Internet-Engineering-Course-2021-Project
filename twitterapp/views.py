@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse  
 from rest_framework.parsers import JSONParser
 from .models import Tweet,UserFollowing,Account
-from .serializers import TweetSerializer,UserFollowingSerializer
+from .serializers import TweetSerializer,UserFollowingSerializer,LikeSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
 # from rest_framework.response import Response
@@ -12,7 +12,7 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import generics, permissions, mixins
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import RegisterSerializer, UserSerializer,LikeSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 
@@ -31,6 +31,7 @@ class GenericAPIView(generics.GenericAPIView,mixins.ListModelMixin,mixins.Create
         request_data = {}
         request_data['text']=request.data.get("text")
         request_data['user_id']=request.user.id
+        request_data['likes']=[]
         serializers=TweetSerializer(data=request_data)
         if serializers.is_valid():
             serializers.save()
@@ -88,6 +89,17 @@ class FollowAPIView(generics.GenericAPIView):
         request_data['following_user_id']=request.data.get("following_user_id")
         request_data['user_id']=request.user.id
         serializers=UserFollowingSerializer(data=request_data)
+        if serializers.is_valid():
+            serializers.save()
+        return Response(serializers.data)
+class LikeAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class=LikeSerializer   
+    def post(self,request,pk):
+        request_data = {}
+        request_data['user_id']=request.user.id
+        request_data['tweet_id']=pk
+        serializers=LikeSerializer(data=request_data)
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)
