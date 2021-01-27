@@ -3,40 +3,91 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from .models import Tweet
 from .serializers import TweetSerializer
-from django.views.decorators.csrf import csrf_exempt
-@csrf_exempt
-def tweet_list(request):
-    if request.method =='GET':
-        tweets= Tweet.objects.all()
-        serializers=TweetSerializer(tweets,many=True)
-        return JsonResponse(serializers.data,safe=False)
-    elif request.method =='POST':
-        data = JSONParser().parse(request)
-        serializers = TweetSerializer(data=data)
+# from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
 
-        if serializers.is_valid():
-            serializers.save()
-            return JsonResponse(serializers.data,status=201)
-        return JsonResponse(serializers.errors,status=400)
-@csrf_exempt
-def tweetdetails(request,pk):
-    try:
-        tweet=Tweet.objects.get(pk=pk)
 
-    except Tweet.DoesNotExist:
-        return HttpResponse(status=404)
-    if request.method =='GET':
-        serializers=TweetSerializer(tweet)
-        return JsonResponse(serializers.data)
-    elif request.method =='PUT':
-        data = JSONParser().parse(request)
-        serializers = TweetSerializer(tweet,data=data)
+class GenericAPIView(generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+    serializer_class=TweetSerializer
+    queryset=Tweet.objects.all()
+    lookup_field = 'pk'
+    def get(self,request,pk = None):
+        if(pk):
+            return self.retrieve(request)
+        else:
+            return self.list(request)
+    def post(self,request):
+        return self.create(request)
+    def put(self,request,pk):
+        return self.update(request,pk)
+    def delete(self,request,pk):
+        return self.destroy(request,pk)
 
-        if serializers.is_valid():
-            serializers.save()
-            return JsonResponse(serializers.data)
-        return JsonResponse(serializers.errors,status=400)
-    elif request.method =='DELETE':
-        tweet.delete()
-        return HttpResponse(status=204)
-# Create your views here.
+
+
+
+# class TweetAPIView(APIView):
+#     def get(self,request):
+#         tweets= Tweet.objects.all()
+#         serializers=TweetSerializer(tweets,many=True)
+#         return Response(serializers.data)               
+
+#     def post(self,request):
+#         serializers = TweetSerializer(data=request.data)
+
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data,status.HTTP_201_CREATED)
+           
+#         return Response(serializers.data,status.HTTP_400_BAD_REQUEST)
+
+# class TweetDetails(APIView):
+#     def get_object(self,pk):
+#         try:
+#             tweet=Tweet.objects.get(pk=pk)
+#             return tweet
+#         except Tweet.DoesNotExist:
+#             return HttpResponse(status=status.HTTP_404_NOT_FOUND)      
+#     def get(self,request, pk):
+#         tweet=self.get_object(pk)
+#         serializers=TweetSerializer(tweet)
+#         return Response(serializers.data)
+#     def put(self,request, pk):
+#         tweet=self.get_object(pk)
+#         serializers = TweetSerializer(tweet,data=request.data)
+
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data)
+#         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+#     def delete(self,request,pk):
+#         tweet=self.get_object(pk)
+#         tweet.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+# # @api_view(['GET','PUT','DELETE'])
+# # def tweetdetails(request,pk):
+    
+# #     try:
+# #         tweet=Tweet.objects.get(pk=pk)
+
+# #     except Tweet.DoesNotExist:
+# #         return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+# #     if request.method =='GET':
+# #         serializers=TweetSerializer(tweet)
+# #         return Response(serializers.data)
+# #     elif request.method =='PUT':
+# #         serializers = TweetSerializer(tweet,data=request.data)
+
+# #         if serializers.is_valid():
+# #             serializers.save()
+# #             return Response(serializers.data)
+# #         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+# #     elif request.method =='DELETE':
+# #         tweet.delete()
+# #         return Response(status=status.HTTP_204_NO_CONTENT)
+# # # Create your views here.
