@@ -18,5 +18,25 @@ def tweet_list(request):
             serializers.save()
             return JsonResponse(serializers.data,status=201)
         return JsonResponse(serializers.errors,status=400)
+@csrf_exempt
+def tweetdetails(request,pk):
+    try:
+        tweet=Tweet.objects.get(pk=pk)
 
+    except Tweet.DoesNotExist:
+        return HttpResponse(status=404)
+    if request.method =='GET':
+        serializers=TweetSerializer(tweet)
+        return JsonResponse(serializers.data)
+    elif request.method =='PUT':
+        data = JSONParser().parse(request)
+        serializers = TweetSerializer(tweet,data=data)
+
+        if serializers.is_valid():
+            serializers.save()
+            return JsonResponse(serializers.data)
+        return JsonResponse(serializers.errors,status=400)
+    elif request.method =='DELETE':
+        tweet.delete()
+        return HttpResponse(status=204)
 # Create your views here.
