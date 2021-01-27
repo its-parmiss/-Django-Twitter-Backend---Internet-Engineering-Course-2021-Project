@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse  
 from rest_framework.parsers import JSONParser
-from .models import Tweet
-from .serializers import TweetSerializer
+from .models import Tweet,UserFollowing,Account
+from .serializers import TweetSerializer,UserFollowingSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
 # from rest_framework.response import Response
@@ -46,8 +46,29 @@ class RegisterApi(generics.GenericAPIView):
             "user": UserSerializer(user,    context=self.get_serializer_context()).data,
             "message": "User Created Successfully.  Now perform Login to get your token",
         })
-
-
+class UserAPIView(generics.GenericAPIView,mixins.UpdateModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+    permission_classes = [IsAuthenticated]
+    serializer_class=UserSerializer
+    queryset=User.objects.all()
+    def get(self,request):
+        user = Account.objects.get(id=request.user.id)
+        serializers= UserSerializer(user)
+        return Response(serializers.data) 
+    def put(self,request,pk):
+        return self.update(request,pk)
+    def delete(self,request,pk):
+        return self.destroy(request,pk)                 
+class FollowAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class=UserFollowingSerializer   
+    def post(self,request):
+        request_data = {}
+        request_data['following_user_id']=request.data.get("following_user_id")
+        request_data['user_id']=request.user.id
+        serializers=UserFollowingSerializer(data=request_data)
+        if serializers.is_valid():
+            serializers.save()
+        return Response(serializers.data) 
 # class TweetAPIView(APIView):
 #     def get(self,request):
 #         tweets= Tweet.objects.all()
