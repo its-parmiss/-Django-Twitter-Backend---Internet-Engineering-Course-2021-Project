@@ -9,13 +9,16 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = '__all__'
-
-class TweetSerializer(serializers.ModelSerializer):
-    likes=LikeSerializer(read_only=True, many=True)
-    class Meta:
-        model = Tweet
-        fields=['id','text','user_id','date','likes']
-
+class BaseTweetSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Tweet
+            fields=['id','text','user_id','date','likes','original_tweet_id']
+# class TweetSerializer(serializers.ModelSerializer):
+#     original_tweet = BaseTweetSerializer()
+#     tweet= BaseTweetSerializer()
+#     class Meta:
+#         model = Tweet
+#         fields=['original_tweet','tweet']
 # Register serializer
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,7 +38,7 @@ class UserFollowingSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     following = UserFollowingSerializer(read_only=True, many=True)
     followers=UserFollowingSerializer(read_only=True, many=True)
-    tweets=TweetSerializer(read_only=True, many=True)
+    tweets=BaseTweetSerializer(read_only=True, many=True)
     liked = LikeSerializer(read_only=True, many=True)
 
     class Meta:

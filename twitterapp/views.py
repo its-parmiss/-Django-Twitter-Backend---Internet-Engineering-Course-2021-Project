@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse  
 from rest_framework.parsers import JSONParser
 from .models import Tweet,UserFollowing,Account
-from .serializers import TweetSerializer,UserFollowingSerializer,LikeSerializer
+from .serializers import UserFollowingSerializer,LikeSerializer,BaseTweetSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
 # from rest_framework.response import Response
@@ -19,12 +19,21 @@ from rest_framework.permissions import IsAuthenticated
 
 class GenericAPIView(generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticated]
-    serializer_class=TweetSerializer
+    serializer_class=BaseTweetSerializer
     queryset=Tweet.objects.all()
     lookup_field = 'pk'
     def get(self,request,pk = None):
         if(pk):
             return self.retrieve(request)
+            # tweet= Tweet.objects.get(pk)
+            # original_tweet=Tweet.get_object(tweet.original_tweet_id)
+            # tweetserializer = BaseTweetSerializer(tweet)
+            # orgtweetserializer= BaseTweetSerializer(original_tweet)
+            # request_data={}
+            # request_data['original_tweet']=orgtweetserialize
+            # request_data['this_tweet']=tweetserializer
+            # serializers=TweetSerializer(request_dat)
+            # return Response(serializers.data)
         else:
             return self.list(request)
     def post(self,request):
@@ -32,10 +41,16 @@ class GenericAPIView(generics.GenericAPIView,mixins.ListModelMixin,mixins.Create
         request_data['text']=request.data.get("text")
         request_data['user_id']=request.user.id
         request_data['likes']=[]
-        serializers=TweetSerializer(data=request_data)
-        if serializers.is_valid():
-            serializers.save()
-        return Response(serializers.data)
+        request_data['original_tweet_id']=request.data.get("original_tweet_id")
+        # tweetserializer = BaseTweetSerializer(data=request_data)
+        # orgtweet=Tweet.objects.get(pk=pk)
+        # orgtweetserializer = BaseTweetSerializer(orgtweet)
+        # tweetserializer= BaseTweetSerializer(data=request_data)
+        # request_data={}
+        # request_data['original_tweet']=orgtweetserializer
+        # request_data['this_tweet']=tweetserializer
+        # serializers=BaseTweetSerializer(data=request_data)
+        return self.create(request_data)
     def put(self,request,pk):
         return self.update(request,pk)
     def delete(self,request,pk):

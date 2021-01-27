@@ -16,6 +16,8 @@ class Tweet(models.Model):
     text=models.CharField(max_length=280, default="")
     date= models.DateTimeField(auto_now_add=True)
     user_id = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
+    original_tweet_id = models.IntegerField(null=True,blank=True)
+
 
 class UserFollowing(models.Model):
     user_id = models.ForeignKey("Account", related_name="following", on_delete=models.CASCADE)
