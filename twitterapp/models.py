@@ -10,9 +10,9 @@ class Tweet(models.Model):
     def __str__(self):
         return self.name
 class Account(User):  
-    followingCount=models.IntegerField(default=0)
-    followerCount=models.IntegerField(default=0)
     profile_image = models.ImageField(blank=True)
+    bio = models.CharField(max_length=280,default="")
+    birthdate=models.DateTimeField(null=True)
     def __unicode__(self):
         return self.username
 

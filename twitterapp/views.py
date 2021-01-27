@@ -54,10 +54,10 @@ class UserAPIView(generics.GenericAPIView,mixins.UpdateModelMixin,mixins.Retriev
         user = Account.objects.get(id=request.user.id)
         serializers= UserSerializer(user)
         return Response(serializers.data) 
-    def put(self,request,pk):
-        return self.update(request,pk)
-    def delete(self,request,pk):
-        return self.destroy(request,pk)                 
+    def put(self,request):
+        return self.update(request)
+    def delete(self,request):
+        return self.destroy(request)                 
 class FollowAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class=UserFollowingSerializer   

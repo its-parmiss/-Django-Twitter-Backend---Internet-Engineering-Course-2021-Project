@@ -16,7 +16,7 @@ class TweetSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ('id','username','password','first_name', 'last_name','email')
+        fields = ('id','username','password','first_name', 'last_name','email','bio','birthdate','profile_image')
         extra_kwargs = {
             'password':{'write_only': True},
         }
