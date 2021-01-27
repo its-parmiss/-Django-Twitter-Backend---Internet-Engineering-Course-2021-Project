@@ -55,9 +55,17 @@ class UserAPIView(generics.GenericAPIView,mixins.UpdateModelMixin,mixins.Retriev
         serializers= UserSerializer(user)
         return Response(serializers.data) 
     def put(self,request):
-        return self.update(request)
+        serializers = UserSerializer(data=request.data)
+        # return self.update(request)
+        if serializers.is_valid():
+            serializers.save()
+        return Response(serializers.data,status.HTTP_201_CREATED)
+           
+        return Response(serializers.data,status.HTTP_400_BAD_REQUEST)
     def delete(self,request):
-        return self.destroy(request)                 
+        user=Account.objects.get(id=request.user.id)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)              
 class FollowAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class=UserFollowingSerializer   
