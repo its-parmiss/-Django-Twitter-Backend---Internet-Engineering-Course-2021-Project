@@ -22,7 +22,7 @@ class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
     text = models.CharField(max_length=280, default="")
     date = models.DateTimeField(auto_now_add=True)
-    user_id = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
+    user = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
     parent = models.ForeignKey("self", on_delete=models.CASCADE,null=True,blank=True)
 
 class UserFollowing(models.Model):
@@ -35,11 +35,11 @@ class UserFollowing(models.Model):
 class Like(models.Model):
     id = models.AutoField(primary_key=True)
     tweet_id = models.ForeignKey(Tweet, related_name="likes", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(Account, related_name="liked", on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, related_name="liked", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
     image=models.ImageField(upload_to=upload_to, blank=True)
     dir= models.CharField(max_length=280, default="Avatar")
-    
+

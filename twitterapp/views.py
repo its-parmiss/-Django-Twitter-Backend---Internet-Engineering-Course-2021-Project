@@ -37,7 +37,7 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         request_data = {}
 
         request_data['text'] = request.data.get("text")
-        request_data['user_id'] = request.user.id
+        request_data['user'] = request.user.id
         request_data['likes'] = []
         # request_data['parent']=request.data.get("parent")
         request_data['parent'] = None
@@ -138,7 +138,7 @@ class LikeAPIView(generics.GenericAPIView):
 
     def post(self, request, pk):
         request_data = {}
-        request_data['user_id'] = request.user.id
+        request_data['user'] = request.user.id
         request_data['tweet_id'] = pk
         serializers = LikeSerializer(data=request_data)
         if serializers.is_valid():
@@ -152,7 +152,7 @@ class SearchTweet(viewsets.ModelViewSet):
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['text']
+    search_fields = ['text','user__username']
 
 
 

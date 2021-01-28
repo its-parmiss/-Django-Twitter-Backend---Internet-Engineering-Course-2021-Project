@@ -26,7 +26,7 @@ class TweetSerializer(serializers.ModelSerializer):
     parent = RecursiveField(allow_null=True)
     class Meta:
         model = Tweet
-        fields = ['id','text','user_id','date','likes', 'parent']
+        fields = ['id','text','user','date','likes', 'parent']
 
 
 # Register serializer
