@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Tweet, UserFollowing, Account
+from .models import Tweet, UserFollowing, Account, Like
 from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
@@ -115,7 +115,13 @@ class FollowAPIView(generics.GenericAPIView):
         request_data = {}
         request_data['following_user_id'] = request.data.get("following_user_id")
         request_data['user_id'] = request.user.id
-        serializers = UserFollowingSerializer(data=request_data)
+        follows = UserFollowing.objects.filter(following_user_id=request.data.get('following_user_id'),
+                                               user_id=request.user.id)
+        if follows.count() == 0:
+            serializers = UserFollowingSerializer(data=request_data)
+        else:
+            serializers = UserFollowingSerializer(data=follows[0])
+            follows[0].delete()
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)
@@ -129,7 +135,12 @@ class LikeAPIView(generics.GenericAPIView):
         request_data = {}
         request_data['user_id'] = request.user.id
         request_data['tweet_id'] = pk
-        serializers = LikeSerializer(data=request_data)
+        likes = Like.objects.filter(user_id=request.user.id, tweet_id=pk)
+        if likes.count() == 0:
+            serializers = LikeSerializer(data=request_data)
+        else:
+            serializers = LikeSerializer(data=likes[0])
+            likes[0].delete()
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)

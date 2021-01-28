@@ -12,7 +12,7 @@ from rest_framework_recursive.fields import RecursiveField
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
-        fields = '__all__'
+        fields = ('id', 'user_id', 'tweet_id')
 
 
 # class TweetSerializer(serializers.ModelSerializer):
@@ -22,6 +22,7 @@ class LikeSerializer(serializers.ModelSerializer):
 #         fields=['id','text','user_id','date','likes']
 class TweetSerializer(serializers.ModelSerializer):
     parent = RecursiveField(allow_null=True)
+    likes = LikeSerializer(read_only=True, many=True)
 
     class Meta:
         model = Tweet
