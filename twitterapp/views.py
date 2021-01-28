@@ -97,9 +97,16 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         # return self.update(request)
         if serializers.is_valid():
             user = serializers.save()
-        return Response(serializers.data, status.HTTP_201_CREATED)
+            return Response(serializers.data, status.HTTP_201_CREATED)
+        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializers.data, status.HTTP_400_BAD_REQUEST)
+    def patch(self, request):
+        user = Account.objects.get(id=request.user.id)
+        serializers = UserSerializer(user, data=request.data, partial=True)
+        if serializers.is_valid():
+            serializers.save();
+            return Response(serializers.data, status.HTTP_201_CREATED)
+        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         user = Account.objects.get(id=request.user.id)
