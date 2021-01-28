@@ -18,6 +18,9 @@ class Account(User):
     def __unicode__(self):
         return self.username
 
+class Hashtag(models.Model):
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=100)
 
 class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
@@ -26,6 +29,7 @@ class Tweet(models.Model):
     user = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
     parent = models.ForeignKey("self", on_delete=models.CASCADE,null=True,blank=True)
     image=models.ForeignKey("Image", related_name="tweet", on_delete=models.CASCADE,null=True,blank=True)
+    hashtag=models.ForeignKey("Hashtag", related_name="tweets", on_delete=models.CASCADE,null=True,blank=True)
     # hashtags = models.ManyToManyField(Hashtag,blank=True)
 
 class UserFollowing(models.Model):
@@ -48,5 +52,5 @@ class Image(models.Model):
 # class TweetImage(models.Model):
 #     tweet= 
 
-# class Hashtag(models.Model):
-#     key = models.CharField(max_length=100)
+# class Notification(models.Model):
+#     id = models.AutoField(primary_key=True)

@@ -4,7 +4,7 @@ from django.db import models
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from .models import Account, UserFollowing, Like, Image
+from .models import Account, UserFollowing, Like, Image,Hashtag
 from .models import Tweet
 
 
@@ -23,7 +23,7 @@ class TweetSerializer(serializers.ModelSerializer):
     parent = RecursiveField(allow_null=True)
     class Meta:
         model = Tweet
-        fields = ['id', 'text', 'user', 'date', 'likes', 'parent','image']
+        fields = ['id', 'text', 'user', 'date', 'likes', 'parent','image','hashtag']
 
 
 # Register serializer
@@ -35,6 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
         }
+
 
 
 class UserFollowingSerializer(serializers.ModelSerializer):
@@ -58,3 +59,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = '__all__'
+class HashtagSerializer(serializers.ModelSerializer):
+    tweets= TweetSerializer(many=True)
+    class Meta:
+        model = Hashtag
+        fields='__all__'

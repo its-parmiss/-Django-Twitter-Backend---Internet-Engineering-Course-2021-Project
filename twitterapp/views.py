@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Tweet, UserFollowing, Account,Image
-from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer
+from .models import Tweet, UserFollowing, Account,Image,Hashtag
+from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer,HashtagSerializer
+from .functions import extract_hashtags
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
 # from rest_framework.response import Response
@@ -35,12 +36,30 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
 
     def post(self, request):
         request_data = {}
-
-        request_data['text'] = request.data.get("text")
+        text = request.data.get("text")
+        hashtags = extract_hashtags(text)
+        hashkey=None
+        if(hashtags):
+            for hashtag in hashtags:
+                try:
+                    hashobj = Hashtag.objects.get(key=hashtag)
+                    hashkey=hashobj.id
+                except Hashtag.DoesNotExist:
+                    hashobj = None
+                    
+                if(hashobj):
+                    hasshkey=hashobj.id
+                else:
+                    hashobj= Hashtag.objects.create (key=hashtag)
+                    hashkey = hashobj.id
+                    print(hashtag)
+                    print(hashkey)
+        request_data['hashtag']= hashkey
+        request_data['text'] = text
         request_data['user'] = request.user.id
         request_data['likes'] = []
-        # request_data['parent']=request.data.get("parent")
-        request_data['parent'] = None
+        request_data['parent']=request.data.get("parent")
+        # request_data['parent'] = None
         request_data['image'] = request.data.get("image")
         # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
         serializers = TweetSerializer(data=request_data)
@@ -168,12 +187,15 @@ class ImageAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListMode
 
 
 
-
-
-
-
-
-
+class HashtagAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListModelMixin,):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HashtagSerializer
+    queryset = Hashtag.objects.all()
+    def get(self, request, pk=None):
+        if (pk):
+            return self.retrieve(request)
+        else:
+            return self.list(request)
 
 
 
