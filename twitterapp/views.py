@@ -119,7 +119,7 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         user = Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user, data=request.data, partial=True)
         if serializers.is_valid():
-            serializers.save();
+            serializers.save()
             return Response(serializers.data, status.HTTP_201_CREATED)
         return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
 
