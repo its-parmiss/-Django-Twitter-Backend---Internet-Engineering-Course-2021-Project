@@ -25,7 +25,7 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
     lookup_field = 'pk'
 
     def get(self, request, pk=None):
-        if (pk):
+        if pk:
             return self.retrieve(request)
         else:
             return self.list(request)
@@ -84,7 +84,11 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
     queryset = User.objects.all()
 
     def get(self, request):
-        user = Account.objects.get(id=request.user.id)
+        pk = request.query_params.get('id', None)
+        if pk:
+            user = Account.objects.get(id=pk)
+        else:
+            user = Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user)
         return Response(serializers.data)
 

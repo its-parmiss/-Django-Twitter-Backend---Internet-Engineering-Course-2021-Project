@@ -124,7 +124,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:8001',
+CORS_ALLOWED_ORIGINS = ['http://localhost:8081',
                         'http://localhost:8080']
 
 SIMPLE_JWT = {
