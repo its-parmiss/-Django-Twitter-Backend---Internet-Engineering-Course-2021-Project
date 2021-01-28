@@ -24,7 +24,11 @@ class TweetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tweet
+<<<<<<< HEAD
         fields = ['id', 'text', 'user_id', 'date', 'likes', 'parent']
+=======
+        fields = ['id','text','user','date','likes', 'parent']
+>>>>>>> 9c6ce2e4600e712560ef67d1137f3df3ba536e4a
 
 
 # Register serializer
