@@ -12,7 +12,7 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import generics, permissions, mixins
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, UserSerializer, LikeSerializer,ImageSerializer
+from .serializers import RegisterSerializer, UserSerializer, LikeSerializer, ImageSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -34,13 +34,13 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
     def post(self, request):
         request_data = {}
 
-        request_data['text']=request.data.get("text")
-        request_data['user_id']=request.user.id
-        request_data['likes']=[]
+        request_data['text'] = request.data.get("text")
+        request_data['user_id'] = request.user.id
+        request_data['likes'] = []
         # request_data['parent']=request.data.get("parent")
-        request_data['parent']=None
+        request_data['parent'] = None
         # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
-        serializers=TweetSerializer(data=request_data)
+        serializers = TweetSerializer(data=request_data)
 
         if serializers.is_valid():
             serializers.save()
@@ -96,7 +96,6 @@ class UploadImage(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                   mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticated]
@@ -113,9 +112,16 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         # return self.update(request)
         if serializers.is_valid():
             user = serializers.save()
-        return Response(serializers.data, status.HTTP_201_CREATED)
+            return Response(serializers.data, status.HTTP_201_CREATED)
+        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializers.data, status.HTTP_400_BAD_REQUEST)
+    def patch(self, request):
+        user = Account.objects.get(id=request.user.id)
+        serializers = UserSerializer(user, data=request.data, partial=True)
+        if serializers.is_valid():
+            serializers.save();
+            return Response(serializers.data, status.HTTP_201_CREATED)
+        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         user = Account.objects.get(id=request.user.id)
