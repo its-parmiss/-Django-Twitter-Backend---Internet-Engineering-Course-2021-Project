@@ -199,7 +199,11 @@ class HashtagAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListMo
 
 
 
-
+class SearchByHashtag(viewsets.ModelViewSet):
+    queryset = Hashtag.objects.all()
+    serializer_class = HashtagSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=key']
 
 
 

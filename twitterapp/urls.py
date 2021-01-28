@@ -6,8 +6,7 @@ from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt import views as jwt_views
 
-from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView, UploadImage,ImageAPI,HashtagAPI
-from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView, UploadImage
+from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView, UploadImage,ImageAPI,HashtagAPI,SearchByHashtag
 from .views import SearchTweet
 
 urlpatterns = [
@@ -27,6 +26,7 @@ urlpatterns = [
     path('generic/explore/', csrf_exempt(SearchTweet.as_view({'get': 'list'}))),
     path('generic/hashtag/<int:pk>/', csrf_exempt(HashtagAPI.as_view())),
     path('generic/hashtag/', csrf_exempt(HashtagAPI.as_view())),
+    path('generic/hashtagtweets/', csrf_exempt(SearchByHashtag.as_view({'get': 'list'}))),
 
     # path('tweets/', tweet_list ),
     # path('tweet/<int:pk>/',tweetdetails)
