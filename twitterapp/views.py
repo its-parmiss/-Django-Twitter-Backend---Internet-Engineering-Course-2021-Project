@@ -32,20 +32,14 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
 
     def post(self, request):
         request_data = {}
-<<<<<<< HEAD
-        request_data['text']=request.data.get("text")
-        request_data['user_id']=request.user.id
-        request_data['likes']=[]
-        # request_data['parent']=request.data.get("parent")
-        request_data['parent']=None
-        # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
-        serializers=TweetSerializer(data=request_data)
-=======
         request_data['text'] = request.data.get("text")
         request_data['user_id'] = request.user.id
         request_data['likes'] = []
+        # request_data['parent']=request.data.get("parent")
+        request_data['parent'] = None
+        # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
         serializers = TweetSerializer(data=request_data)
->>>>>>> 41b4e9a1ee490f43ccdf844a5fe810d13220fc90
+
         if serializers.is_valid():
             serializers.save()
         else:

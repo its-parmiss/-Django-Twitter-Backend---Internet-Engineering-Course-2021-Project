@@ -6,18 +6,13 @@ from .models import Account, UserFollowing, Like
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 
-<<<<<<< HEAD
 from rest_framework_recursive.fields import RecursiveField
-
-=======
->>>>>>> 41b4e9a1ee490f43ccdf844a5fe810d13220fc90
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = '__all__'
 
-<<<<<<< HEAD
 # class TweetSerializer(serializers.ModelSerializer):
 #     likes=LikeSerializer(read_only=True, many=True)
 #     class Meta:
@@ -28,16 +23,6 @@ class TweetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tweet
         fields = ['id','text','user_id','date','likes', 'parent']
-=======
-
-class TweetSerializer(serializers.ModelSerializer):
-    likes = LikeSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Tweet
-        fields = ['id', 'text', 'user_id', 'date', 'likes']
-
->>>>>>> 41b4e9a1ee490f43ccdf844a5fe810d13220fc90
 
 # Register serializer
 class RegisterSerializer(serializers.ModelSerializer):
