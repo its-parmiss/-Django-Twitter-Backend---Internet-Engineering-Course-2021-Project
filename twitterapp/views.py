@@ -3,11 +3,15 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from .models import Tweet, UserFollowing, Account, Image, Hashtag
 from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer, HashtagSerializer
+from .models import Tweet, UserFollowing, Account,Image,Hashtag
+from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer,HashtagSerializer,TweetListSerializer
 from .functions import extract_hashtags
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
 # from rest_framework.response import Response
 from rest_framework import status
+from django.core import serializers
+# from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
@@ -20,6 +24,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework import filters
 from rest_framework import viewsets
+from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
+import json
 
 
 class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
@@ -33,8 +39,16 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         if (pk):
             return self.retrieve(request)
         else:
-            return self.list(request)
-
+            user=Account.objects.get(id=request.user.id)
+            serializer=UserSerializer(user)
+            for following in serializer.data['following']:
+                dict=[]
+                fid=following['following_user_id']
+                fuser=Account.objects.get(id=fid)
+                fserializer=UserSerializer(fuser)
+                for tweet in fserializer.data['tweets']:
+                    dict.append(tweet)
+            return JsonResponse(dict,safe=False)
     def post(self, request):
         request_data = {}
         text = request.data.get("text")
