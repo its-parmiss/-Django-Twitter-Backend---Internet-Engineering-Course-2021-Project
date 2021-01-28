@@ -97,12 +97,12 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         return Response(serializers.data)
 
     def put(self, request):
-        serializers = UserSerializer(data=request.data)
-        # return self.update(request)
+        user=Account.objects.get(id=request.user.id)
+        serializers = UserSerializer(user,data=request.data)
         if serializers.is_valid():
-            user = serializers.save()
-            return Response(serializers.data, status.HTTP_201_CREATED)
-        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
+            serializers.save()
+            return Response(serializers.data)
+        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         user = Account.objects.get(id=request.user.id)

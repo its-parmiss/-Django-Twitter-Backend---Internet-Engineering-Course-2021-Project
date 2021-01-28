@@ -14,6 +14,7 @@ class Account(User):
     profile_image_url = models.CharField(max_length=280, default="")
     bio = models.CharField(max_length=280, default="")
     birthdate = models.DateTimeField(null=True)
+
     def __unicode__(self):
         return self.username
 
@@ -22,8 +23,9 @@ class Tweet(models.Model):
     id = models.AutoField(primary_key=True)
     text = models.CharField(max_length=280, default="")
     date = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
-    parent = models.ForeignKey("self", on_delete=models.CASCADE,null=True,blank=True)
+    user_id = models.ForeignKey("Account", related_name="tweets", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
+
 
 class UserFollowing(models.Model):
     user_id = models.ForeignKey("Account", related_name="following", on_delete=models.CASCADE)
@@ -38,8 +40,9 @@ class Like(models.Model):
     user = models.ForeignKey(Account, related_name="liked", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
+
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
-    image=models.ImageField(upload_to=upload_to, blank=True)
-    dir= models.CharField(max_length=280, default="Avatar")
+    image = models.ImageField(upload_to=upload_to, blank=True)
+    dir = models.CharField(max_length=280, default="Avatar")
 
