@@ -32,9 +32,15 @@ class GenericAPIView(generics.GenericAPIView,mixins.ListModelMixin,mixins.Create
         request_data['text']=request.data.get("text")
         request_data['user_id']=request.user.id
         request_data['likes']=[]
+        # request_data['parent']=request.data.get("parent")
+        request_data['parent']=None
+        # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
         serializers=TweetSerializer(data=request_data)
         if serializers.is_valid():
             serializers.save()
+        else:
+            print("here")
+            print(serializers.errors)
         return Response(serializers.data)
     def put(self,request,pk):
         return self.update(request,pk)
