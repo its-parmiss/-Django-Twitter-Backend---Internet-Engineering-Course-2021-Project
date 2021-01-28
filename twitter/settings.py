@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -122,7 +123,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "twitter", "site_static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "twitter", "static")
 STATIC_URL = "/static/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "twitter", "media")
+MEDIA_URL = "/media/"
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:8081',
                         'http://localhost:8080']

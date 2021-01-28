@@ -2,17 +2,19 @@ from rest_framework import serializers
 from .models import Tweet
 
 from django.db import models
-from .models import Account, UserFollowing, Like
+from .models import Account, UserFollowing, Like,Image
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 
+
 from rest_framework_recursive.fields import RecursiveField
+
 
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
-        fields = ('id', 'user_id', 'tweet_id')
+        fields = '__all__'
 
 
 # class TweetSerializer(serializers.ModelSerializer):
@@ -22,11 +24,9 @@ class LikeSerializer(serializers.ModelSerializer):
 #         fields=['id','text','user_id','date','likes']
 class TweetSerializer(serializers.ModelSerializer):
     parent = RecursiveField(allow_null=True)
-    likes = LikeSerializer(read_only=True, many=True)
-
     class Meta:
         model = Tweet
-        fields = ('id', 'text', 'user_id', 'date', 'likes', 'parent')
+        fields = ['id','text','user_id','date','likes', 'parent']
 
 
 # Register serializer
@@ -56,7 +56,11 @@ class UserSerializer(serializers.ModelSerializer):
     followers = UserFollowingSerializer(read_only=True, many=True)
     tweets = TweetSerializer(read_only=True, many=True)
     liked = LikeSerializer(read_only=True, many=True)
-
     class Meta:
         model = Account
         fields = '__all__'
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ["image"]

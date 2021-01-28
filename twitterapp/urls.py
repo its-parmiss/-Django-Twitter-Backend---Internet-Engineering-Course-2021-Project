@@ -3,7 +3,7 @@ from django.urls import path
 # from .views import TweetAPIView,TweetDetails,
 from django.views.decorators.csrf import csrf_exempt
 
-from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, uploadProfileImageAPI, LikeAPIView
+from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView,UploadImage
 from rest_framework_simplejwt import views as jwt_views
 from django.conf.urls.static import static
 from django.conf import settings
@@ -18,8 +18,10 @@ urlpatterns = [
         path('generic/token/refresh/', csrf_exempt(jwt_views.TokenRefreshView.as_view()), name='token_refresh'),
         path('generic/follow/', csrf_exempt(FollowAPIView.as_view())),
         path('generic/user/', csrf_exempt(UserAPIView.as_view())),
-        path('generic/upload_profile/', csrf_exempt(uploadProfileImageAPI.as_view())),
+        path('generic/upload_profile/', csrf_exempt(UploadImage.as_view())),
         path('generic/like/<int:pk>/', csrf_exempt(LikeAPIView.as_view()))
         # path('tweets/', tweet_list ),
         # path('tweet/<int:pk>/',tweetdetails)
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

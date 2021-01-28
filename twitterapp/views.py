@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Tweet, UserFollowing, Account, Like
+from .models import Tweet, UserFollowing, Account
 from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
@@ -12,9 +12,10 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import generics, permissions, mixins
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, UserSerializer, LikeSerializer
+from .serializers import RegisterSerializer, UserSerializer, LikeSerializer,ImageSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
@@ -25,20 +26,21 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
     lookup_field = 'pk'
 
     def get(self, request, pk=None):
-        if pk:
+        if (pk):
             return self.retrieve(request)
         else:
             return self.list(request)
 
     def post(self, request):
         request_data = {}
-        request_data['text'] = request.data.get("text")
-        request_data['user_id'] = request.user.id
-        request_data['likes'] = []
+
+        request_data['text']=request.data.get("text")
+        request_data['user_id']=request.user.id
+        request_data['likes']=[]
         # request_data['parent']=request.data.get("parent")
-        request_data['parent'] = None
+        request_data['parent']=None
         # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
-        serializers = TweetSerializer(data=request_data)
+        serializers=TweetSerializer(data=request_data)
 
         if serializers.is_valid():
             serializers.save()
@@ -68,13 +70,31 @@ class RegisterApi(generics.GenericAPIView):
         })
 
 
-class uploadProfileImageAPI(generics.GenericAPIView):
-    def post(self, request):
-        user = Account.objects.get(id=request.user.id)
-        thumbnail = request.FILES["image"]
-        user.profile_image = thumbnail
-        serializers = UserSerializer(user)
-        return Response(serializers.data)
+# class uploadProfileImageAPI(generics.GenericAPIView):
+#     def post(self, request, format=None):
+#         my_file = request.FILES['image']
+#         filename = '/tmp/myfile'+'/'+str(my_file)
+#         with open(filename, 'wb+') as temp_file:
+#             for chunk in my_file.chunks():
+#                 temp_file.write(chunk)
+
+#         my_saved_file = open(filename) #there you go
+#         user = Account.objects.get(id=request.user.id)
+#         user.profile_image = filename
+#         serializers = UserSerializer(user)
+#         return Response(serializers.data)
+class UploadImage(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
@@ -84,11 +104,7 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
     queryset = User.objects.all()
 
     def get(self, request):
-        pk = request.query_params.get('id', None)
-        if pk:
-            user = Account.objects.get(id=pk)
-        else:
-            user = Account.objects.get(id=request.user.id)
+        user = Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user)
         return Response(serializers.data)
 
@@ -97,16 +113,9 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         # return self.update(request)
         if serializers.is_valid():
             user = serializers.save()
-            return Response(serializers.data, status.HTTP_201_CREATED)
-        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(serializers.data, status.HTTP_201_CREATED)
 
-    def patch(self, request):
-        user = Account.objects.get(id=request.user.id)
-        serializers = UserSerializer(user, data=request.data, partial=True)
-        if serializers.is_valid():
-            serializers.save();
-            return Response(serializers.data, status.HTTP_201_CREATED)
-        return Response(serializers.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(serializers.data, status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         user = Account.objects.get(id=request.user.id)
@@ -122,13 +131,7 @@ class FollowAPIView(generics.GenericAPIView):
         request_data = {}
         request_data['following_user_id'] = request.data.get("following_user_id")
         request_data['user_id'] = request.user.id
-        follows = UserFollowing.objects.filter(following_user_id=request.data.get('following_user_id'),
-                                               user_id=request.user.id)
-        if follows.count() == 0:
-            serializers = UserFollowingSerializer(data=request_data)
-        else:
-            serializers = UserFollowingSerializer(data=follows[0])
-            follows[0].delete()
+        serializers = UserFollowingSerializer(data=request_data)
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)
@@ -142,12 +145,7 @@ class LikeAPIView(generics.GenericAPIView):
         request_data = {}
         request_data['user_id'] = request.user.id
         request_data['tweet_id'] = pk
-        likes = Like.objects.filter(user_id=request.user.id, tweet_id=pk)
-        if likes.count() == 0:
-            serializers = LikeSerializer(data=request_data)
-        else:
-            serializers = LikeSerializer(data=likes[0])
-            likes[0].delete()
+        serializers = LikeSerializer(data=request_data)
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)

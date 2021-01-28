@@ -1,11 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
+import sys
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from .functions import upload_to
 
 
 # Create your models here.
 
 class Account(User):
-    profile_image = models.ImageField(blank=True)
+    # profile_image = models.ImageField(blank=True)
+    profile_image = models.ImageField(_("Image"), upload_to=upload_to, blank=True)
     bio = models.CharField(max_length=280, default="")
     birthdate = models.DateTimeField(null=True)
 
@@ -32,3 +38,7 @@ class Like(models.Model):
     tweet_id = models.ForeignKey(Tweet, related_name="likes", on_delete=models.CASCADE)
     user_id = models.ForeignKey(Account, related_name="liked", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+
+class Image(models.Model):
+    image=models.ImageField(upload_to=upload_to, blank=True)
+    dir= models.CharField(max_length=280, default="Avatar")
