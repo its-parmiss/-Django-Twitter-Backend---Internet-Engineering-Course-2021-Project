@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Tweet, UserFollowing, Account,Image,Hashtag
-from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer,HashtagSerializer
+from .models import Tweet, UserFollowing, Account, Image, Hashtag
+from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer, HashtagSerializer
 from .functions import extract_hashtags
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
@@ -21,6 +21,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import filters
 from rest_framework import viewsets
 
+
 class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
                      mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticated]
@@ -38,27 +39,27 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         request_data = {}
         text = request.data.get("text")
         hashtags = extract_hashtags(text)
-        hashkey=None
-        if(hashtags):
+        hashkey = None
+        if (hashtags):
             for hashtag in hashtags:
                 try:
                     hashobj = Hashtag.objects.get(key=hashtag)
-                    hashkey=hashobj.id
+                    hashkey = hashobj.id
                 except Hashtag.DoesNotExist:
                     hashobj = None
-                    
-                if(hashobj):
-                    hasshkey=hashobj.id
+
+                if (hashobj):
+                    hasshkey = hashobj.id
                 else:
-                    hashobj= Hashtag.objects.create (key=hashtag)
+                    hashobj = Hashtag.objects.create(key=hashtag)
                     hashkey = hashobj.id
                     print(hashtag)
                     print(hashkey)
-        request_data['hashtag']= hashkey
+        request_data['hashtag'] = hashkey
         request_data['text'] = text
         request_data['user'] = request.user.id
         request_data['likes'] = []
-        request_data['parent']=request.data.get("parent")
+        request_data['parent'] = request.data.get("parent")
         # request_data['parent'] = None
         request_data['image'] = request.data.get("image")
         # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
@@ -112,16 +113,21 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
     queryset = User.objects.all()
 
     def get(self, request):
-        user = Account.objects.get(id=request.user.id)
+        pk = request.query_params.get('id', None)
+        if pk:
+            user = Account.objects.get(id=pk)
+        else:
+            user = Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user)
         return Response(serializers.data)
+
     def put(self, request):
-        user=Account.objects.get(id=request.user.id)
-        serializers = UserSerializer(user,data=request.data)
+        user = Account.objects.get(id=request.user.id)
+        serializers = UserSerializer(user, data=request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data)
-        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         user = Account.objects.get(id=request.user.id)
@@ -165,20 +171,18 @@ class LikeAPIView(generics.GenericAPIView):
         return Response(serializers.data)
 
 
-
-
 class SearchTweet(viewsets.ModelViewSet):
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['text','user__username']
+    search_fields = ['text', 'user__username']
 
 
-
-class ImageAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListModelMixin,):
+class ImageAPI(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.ListModelMixin, ):
     permission_classes = [IsAuthenticated]
     serializer_class = ImageSerializer
     queryset = Image.objects.all()
+
     def get(self, request, pk=None):
         if (pk):
             return self.retrieve(request)
@@ -186,17 +190,16 @@ class ImageAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListMode
             return self.list(request)
 
 
-
-class HashtagAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListModelMixin,):
+class HashtagAPI(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.ListModelMixin, ):
     permission_classes = [IsAuthenticated]
     serializer_class = HashtagSerializer
     queryset = Hashtag.objects.all()
+
     def get(self, request, pk=None):
         if (pk):
             return self.retrieve(request)
         else:
             return self.list(request)
-
 
 
 class SearchByHashtag(viewsets.ModelViewSet):
@@ -204,8 +207,6 @@ class SearchByHashtag(viewsets.ModelViewSet):
     serializer_class = HashtagSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['=key']
-
-
 
 # class TweetAPIView(APIView):
 #     def get(self,request):
