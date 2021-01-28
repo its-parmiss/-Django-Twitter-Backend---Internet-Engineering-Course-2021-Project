@@ -66,3 +66,5 @@ class HashtagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hashtag
         fields='__all__'
+class TweetListSerializer(serializers.Serializer):
+    tweets = TweetSerializer(many=True)
