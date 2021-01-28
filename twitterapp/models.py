@@ -11,10 +11,9 @@ from .functions import upload_to
 
 class Account(User):
     # profile_image = models.ImageField(blank=True)
-    profile_image = models.ImageField(_("Image"), upload_to=upload_to, blank=True)
+    profile_image_url = models.CharField(max_length=280, default="")
     bio = models.CharField(max_length=280, default="")
     birthdate = models.DateTimeField(null=True)
-
     def __unicode__(self):
         return self.username
 
@@ -40,5 +39,7 @@ class Like(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 class Image(models.Model):
+    id = models.AutoField(primary_key=True)
     image=models.ImageField(upload_to=upload_to, blank=True)
     dir= models.CharField(max_length=280, default="Avatar")
+    
