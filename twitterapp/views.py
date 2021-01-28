@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Tweet, UserFollowing, Account
+from .models import Tweet, UserFollowing, Account,Image
 from .serializers import TweetSerializer, UserFollowingSerializer, LikeSerializer
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
@@ -41,6 +41,7 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         request_data['likes'] = []
         # request_data['parent']=request.data.get("parent")
         request_data['parent'] = None
+        request_data['image'] = request.data.get("image")
         # tweet = Tweet('text'=request.data.get("text"),'user_id'=,)
         serializers = TweetSerializer(data=request_data)
 
@@ -95,7 +96,6 @@ class UserAPIView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.Retri
         user = Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user)
         return Response(serializers.data)
-
     def put(self, request):
         user=Account.objects.get(id=request.user.id)
         serializers = UserSerializer(user,data=request.data)
@@ -156,6 +156,15 @@ class SearchTweet(viewsets.ModelViewSet):
 
 
 
+class ImageAPI(generics.GenericAPIView,mixins.RetrieveModelMixin,mixins.ListModelMixin,):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ImageSerializer
+    queryset = Image.objects.all()
+    def get(self, request, pk=None):
+        if (pk):
+            return self.retrieve(request)
+        else:
+            return self.list(request)
 
 
 
