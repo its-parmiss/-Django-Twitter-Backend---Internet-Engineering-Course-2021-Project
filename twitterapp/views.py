@@ -17,6 +17,8 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from rest_framework import filters
+from rest_framework import viewsets
 
 class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
                      mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
@@ -70,19 +72,6 @@ class RegisterApi(generics.GenericAPIView):
         })
 
 
-# class uploadProfileImageAPI(generics.GenericAPIView):
-#     def post(self, request, format=None):
-#         my_file = request.FILES['image']
-#         filename = '/tmp/myfile'+'/'+str(my_file)
-#         with open(filename, 'wb+') as temp_file:
-#             for chunk in my_file.chunks():
-#                 temp_file.write(chunk)
-
-#         my_saved_file = open(filename) #there you go
-#         user = Account.objects.get(id=request.user.id)
-#         user.profile_image = filename
-#         serializers = UserSerializer(user)
-#         return Response(serializers.data)
 class UploadImage(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
@@ -155,6 +144,33 @@ class LikeAPIView(generics.GenericAPIView):
         if serializers.is_valid():
             serializers.save()
         return Response(serializers.data)
+
+
+
+
+class SearchTweet(viewsets.ModelViewSet):
+    queryset = Tweet.objects.all()
+    serializer_class = TweetSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['text']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # class TweetAPIView(APIView):
 #     def get(self,request):

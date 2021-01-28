@@ -1,12 +1,14 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
-# from .views import tweet_list 
+# from .views import tweet_list
 # from .views import TweetAPIView,TweetDetails,
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt import views as jwt_views
 
 from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView, UploadImage
-from rest_framework_simplejwt import views as jwt_views
-from django.conf.urls.static import static
-from django.conf import settings
+from .views import GenericAPIView, RegisterApi, UserAPIView, FollowAPIView, LikeAPIView, UploadImage
+from .views import SearchTweet
 
 urlpatterns = [
     # path('tweets/',TweetAPIView.as_view()),
@@ -19,7 +21,9 @@ urlpatterns = [
     path('generic/follow/', csrf_exempt(FollowAPIView.as_view())),
     path('generic/user/', csrf_exempt(UserAPIView.as_view())),
     path('generic/upload_profile/', csrf_exempt(UploadImage.as_view())),
-    path('generic/like/<int:pk>/', csrf_exempt(LikeAPIView.as_view()))
+    path('generic/like/<int:pk>/', csrf_exempt(LikeAPIView.as_view())),
+    path('generic/explore/', csrf_exempt(SearchTweet.as_view({'get': 'list'}))),
+
     # path('tweets/', tweet_list ),
     # path('tweet/<int:pk>/',tweetdetails)
 ]
